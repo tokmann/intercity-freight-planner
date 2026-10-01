@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: intercity-freight-planner
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/freight}
+    username: ${DB_USER:freight}
+    password: ${DB_PASSWORD:freight}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none

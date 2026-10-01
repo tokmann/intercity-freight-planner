@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: freight
+      POSTGRES_USER: freight
+      POSTGRES_PASSWORD: freight
+    ports:
+      - "5432:5432"
