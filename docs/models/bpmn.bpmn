@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_freight" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_freight">
+    <bpmn:participant id="Participant_client" name="Грузоотправитель" />
+    <bpmn:participant id="Participant_atp" name="Автотранспортное предприятие" processRef="Process_request" />
+    <bpmn:participant id="Participant_epd" name="Оператор ЭПД" />
+    <bpmn:messageFlow id="M_1" sourceRef="Participant_client" targetRef="Start" />
+    <bpmn:messageFlow id="M_2" sourceRef="T_ask" targetRef="Participant_client" />
+    <bpmn:messageFlow id="M_3" sourceRef="Participant_client" targetRef="E_info" />
+    <bpmn:messageFlow id="M_4" sourceRef="T_refuse" targetRef="Participant_client" />
+    <bpmn:messageFlow id="M_5" sourceRef="T_offer" targetRef="Participant_client" />
+    <bpmn:messageFlow id="M_6" sourceRef="Participant_client" targetRef="E_answer" />
+    <bpmn:messageFlow id="M_7" sourceRef="T_confirm" targetRef="Participant_client" />
+    <bpmn:messageFlow id="M_8" sourceRef="T_epd" targetRef="Participant_epd" />
+    <bpmn:textAnnotation id="Annotation_legend">
+      <bpmn:text>Цветом выделены операции, которые берет на себя информационная система</bpmn:text>
+    </bpmn:textAnnotation>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_request" name="Обработка заявки на междугороднюю перевозку груза и планирование рейса" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_atp">
+      <bpmn:lane id="Lane_dispatcher" name="Диспетчер">
+        <bpmn:flowNodeRef>Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_register</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_check_merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_ask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_info</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_route</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_time</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_vehicle</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_vehicle</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_driver</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_driver</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_refuse_merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_refuse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_refused</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_cost</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_approval</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_approval_merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_offer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E_answer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_accepted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_declined</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_epd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T_confirm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G_join</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_planned</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_mechanic" name="Механик">
+        <bpmn:flowNodeRef>T_state</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_head" name="Начальник отдела эксплуатации">
+        <bpmn:flowNodeRef>T_approve</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_driver" name="Водитель">
+        <bpmn:flowNodeRef>T_get_task</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_accounting" name="Бухгалтерия">
+        <bpmn:flowNodeRef>T_accounting</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:dataObject id="DO_request_obj" />
+    <bpmn:dataObjectReference id="DO_request" name="Заявка на перевозку" dataObjectRef="DO_request_obj" />
+    <bpmn:dataObject id="DO_vehicles_obj" />
+    <bpmn:dataObjectReference id="DO_vehicles" name="Сведения о состоянии автомобилей" dataObjectRef="DO_vehicles_obj" />
+    <bpmn:dataObject id="DO_drivers_obj" />
+    <bpmn:dataObjectReference id="DO_drivers" name="Сведения о водителях и допусках" dataObjectRef="DO_drivers_obj" />
+    <bpmn:dataObject id="DO_tariffs_obj" />
+    <bpmn:dataObjectReference id="DO_tariffs" name="Тарифы предприятия" dataObjectRef="DO_tariffs_obj" />
+    <bpmn:dataObject id="DO_trip_obj" />
+    <bpmn:dataObjectReference id="DO_trip" name="Рейсовое задание" dataObjectRef="DO_trip_obj" />
+    <bpmn:startEvent id="Start" name="Заявка поступила">
+      <bpmn:outgoing>F_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="Start_def" />
+    </bpmn:startEvent>
+    <bpmn:task id="T_register" name="Зарегистрировать заявку">
+      <bpmn:incoming>F_1</bpmn:incoming>
+      <bpmn:outgoing>F_2</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DA_1">
+        <bpmn:targetRef>DO_request</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="G_check_merge">
+      <bpmn:incoming>F_2</bpmn:incoming>
+      <bpmn:incoming>F_7</bpmn:incoming>
+      <bpmn:outgoing>F_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_check" name="Проверить комплектность заявки">
+      <bpmn:incoming>F_3</bpmn:incoming>
+      <bpmn:outgoing>F_4</bpmn:outgoing>
+      <bpmn:property id="T_check_prop" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DA_2">
+        <bpmn:sourceRef>DO_request</bpmn:sourceRef>
+        <bpmn:targetRef>T_check_prop</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="G_complete" name="Заявка заполнена полностью?">
+      <bpmn:incoming>F_4</bpmn:incoming>
+      <bpmn:outgoing>F_5</bpmn:outgoing>
+      <bpmn:outgoing>F_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_ask" name="Запросить недостающие сведения">
+      <bpmn:incoming>F_5</bpmn:incoming>
+      <bpmn:outgoing>F_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateCatchEvent id="E_info" name="Сведения получены">
+      <bpmn:incoming>F_6</bpmn:incoming>
+      <bpmn:outgoing>F_7</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="E_info_def" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="T_route" name="Определить маршрут и расстояние">
+      <bpmn:incoming>F_8</bpmn:incoming>
+      <bpmn:outgoing>F_9</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="T_time" name="Рассчитать время в пути">
+      <bpmn:incoming>F_9</bpmn:incoming>
+      <bpmn:outgoing>F_10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="T_state" name="Сообщить о состоянии автомобилей">
+      <bpmn:incoming>F_10</bpmn:incoming>
+      <bpmn:outgoing>F_11</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DA_3">
+        <bpmn:targetRef>DO_vehicles</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="T_vehicle" name="Подобрать автомобиль">
+      <bpmn:incoming>F_11</bpmn:incoming>
+      <bpmn:outgoing>F_12</bpmn:outgoing>
+      <bpmn:property id="T_vehicle_prop" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DA_4">
+        <bpmn:sourceRef>DO_vehicles</bpmn:sourceRef>
+        <bpmn:targetRef>T_vehicle_prop</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="G_vehicle" name="Автомобиль подобран?">
+      <bpmn:incoming>F_12</bpmn:incoming>
+      <bpmn:outgoing>F_13</bpmn:outgoing>
+      <bpmn:outgoing>F_14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_driver" name="Подобрать водителя">
+      <bpmn:incoming>F_13</bpmn:incoming>
+      <bpmn:outgoing>F_15</bpmn:outgoing>
+      <bpmn:property id="T_driver_prop" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DA_5">
+        <bpmn:sourceRef>DO_drivers</bpmn:sourceRef>
+        <bpmn:targetRef>T_driver_prop</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="G_driver" name="Водитель подобран?">
+      <bpmn:incoming>F_15</bpmn:incoming>
+      <bpmn:outgoing>F_16</bpmn:outgoing>
+      <bpmn:outgoing>F_19</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="G_refuse_merge">
+      <bpmn:incoming>F_14</bpmn:incoming>
+      <bpmn:incoming>F_16</bpmn:incoming>
+      <bpmn:outgoing>F_17</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_refuse" name="Сообщить об отказе в перевозке">
+      <bpmn:incoming>F_17</bpmn:incoming>
+      <bpmn:outgoing>F_18</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_refused" name="Заявка отклонена">
+      <bpmn:incoming>F_18</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="T_cost" name="Рассчитать стоимость перевозки">
+      <bpmn:incoming>F_19</bpmn:incoming>
+      <bpmn:outgoing>F_20</bpmn:outgoing>
+      <bpmn:property id="T_cost_prop" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DA_6">
+        <bpmn:sourceRef>DO_tariffs</bpmn:sourceRef>
+        <bpmn:targetRef>T_cost_prop</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="G_approval" name="Требуется согласование стоимости?">
+      <bpmn:incoming>F_20</bpmn:incoming>
+      <bpmn:outgoing>F_21</bpmn:outgoing>
+      <bpmn:outgoing>F_22</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_approve" name="Согласовать стоимость перевозки">
+      <bpmn:incoming>F_21</bpmn:incoming>
+      <bpmn:outgoing>F_23</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="G_approval_merge">
+      <bpmn:incoming>F_22</bpmn:incoming>
+      <bpmn:incoming>F_23</bpmn:incoming>
+      <bpmn:outgoing>F_24</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_offer" name="Сообщить условия перевозки грузоотправителю">
+      <bpmn:incoming>F_24</bpmn:incoming>
+      <bpmn:outgoing>F_25</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateCatchEvent id="E_answer" name="Ответ клиента получен">
+      <bpmn:incoming>F_25</bpmn:incoming>
+      <bpmn:outgoing>F_26</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="E_answer_def" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="G_accepted" name="Условия подтверждены?">
+      <bpmn:incoming>F_26</bpmn:incoming>
+      <bpmn:outgoing>F_27</bpmn:outgoing>
+      <bpmn:outgoing>F_28</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_declined" name="Условия не приняты">
+      <bpmn:incoming>F_27</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="T_task" name="Сформировать рейсовое задание">
+      <bpmn:incoming>F_28</bpmn:incoming>
+      <bpmn:outgoing>F_29</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DA_7">
+        <bpmn:targetRef>DO_trip</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="T_epd" name="Подтвердить заявку в системе оператора ЭПД">
+      <bpmn:incoming>F_29</bpmn:incoming>
+      <bpmn:outgoing>F_30</bpmn:outgoing>
+      <bpmn:property id="T_epd_prop" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DA_8">
+        <bpmn:sourceRef>DO_trip</bpmn:sourceRef>
+        <bpmn:targetRef>T_epd_prop</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:parallelGateway id="G_split">
+      <bpmn:incoming>F_30</bpmn:incoming>
+      <bpmn:outgoing>F_31</bpmn:outgoing>
+      <bpmn:outgoing>F_32</bpmn:outgoing>
+      <bpmn:outgoing>F_33</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="T_confirm" name="Отправить подтверждение грузоотправителю">
+      <bpmn:incoming>F_31</bpmn:incoming>
+      <bpmn:outgoing>F_34</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="T_get_task" name="Получить рейсовое задание">
+      <bpmn:incoming>F_32</bpmn:incoming>
+      <bpmn:outgoing>F_35</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="T_accounting" name="Принять сведения о рейсе">
+      <bpmn:incoming>F_33</bpmn:incoming>
+      <bpmn:outgoing>F_36</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:parallelGateway id="G_join">
+      <bpmn:incoming>F_34</bpmn:incoming>
+      <bpmn:incoming>F_35</bpmn:incoming>
+      <bpmn:incoming>F_36</bpmn:incoming>
+      <bpmn:outgoing>F_37</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:endEvent id="End_planned" name="Рейс запланирован">
+      <bpmn:incoming>F_37</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_1" sourceRef="Start" targetRef="T_register" />
+    <bpmn:sequenceFlow id="F_2" sourceRef="T_register" targetRef="G_check_merge" />
+    <bpmn:sequenceFlow id="F_3" sourceRef="G_check_merge" targetRef="T_check" />
+    <bpmn:sequenceFlow id="F_4" sourceRef="T_check" targetRef="G_complete" />
+    <bpmn:sequenceFlow id="F_5" name="нет" sourceRef="G_complete" targetRef="T_ask" />
+    <bpmn:sequenceFlow id="F_6" sourceRef="T_ask" targetRef="E_info" />
+    <bpmn:sequenceFlow id="F_7" sourceRef="E_info" targetRef="G_check_merge" />
+    <bpmn:sequenceFlow id="F_8" name="да" sourceRef="G_complete" targetRef="T_route" />
+    <bpmn:sequenceFlow id="F_9" sourceRef="T_route" targetRef="T_time" />
+    <bpmn:sequenceFlow id="F_10" sourceRef="T_time" targetRef="T_state" />
+    <bpmn:sequenceFlow id="F_11" sourceRef="T_state" targetRef="T_vehicle" />
+    <bpmn:sequenceFlow id="F_12" sourceRef="T_vehicle" targetRef="G_vehicle" />
+    <bpmn:sequenceFlow id="F_13" name="да" sourceRef="G_vehicle" targetRef="T_driver" />
+    <bpmn:sequenceFlow id="F_14" name="нет" sourceRef="G_vehicle" targetRef="G_refuse_merge" />
+    <bpmn:sequenceFlow id="F_15" sourceRef="T_driver" targetRef="G_driver" />
+    <bpmn:sequenceFlow id="F_16" name="нет" sourceRef="G_driver" targetRef="G_refuse_merge" />
+    <bpmn:sequenceFlow id="F_17" sourceRef="G_refuse_merge" targetRef="T_refuse" />
+    <bpmn:sequenceFlow id="F_18" sourceRef="T_refuse" targetRef="End_refused" />
+    <bpmn:sequenceFlow id="F_19" name="да" sourceRef="G_driver" targetRef="T_cost" />
+    <bpmn:sequenceFlow id="F_20" sourceRef="T_cost" targetRef="G_approval" />
+    <bpmn:sequenceFlow id="F_21" name="да" sourceRef="G_approval" targetRef="T_approve" />
+    <bpmn:sequenceFlow id="F_22" name="нет" sourceRef="G_approval" targetRef="G_approval_merge" />
+    <bpmn:sequenceFlow id="F_23" sourceRef="T_approve" targetRef="G_approval_merge" />
+    <bpmn:sequenceFlow id="F_24" sourceRef="G_approval_merge" targetRef="T_offer" />
+    <bpmn:sequenceFlow id="F_25" sourceRef="T_offer" targetRef="E_answer" />
+    <bpmn:sequenceFlow id="F_26" sourceRef="E_answer" targetRef="G_accepted" />
+    <bpmn:sequenceFlow id="F_27" name="нет" sourceRef="G_accepted" targetRef="End_declined" />
+    <bpmn:sequenceFlow id="F_28" name="да" sourceRef="G_accepted" targetRef="T_task" />
+    <bpmn:sequenceFlow id="F_29" sourceRef="T_task" targetRef="T_epd" />
+    <bpmn:sequenceFlow id="F_30" sourceRef="T_epd" targetRef="G_split" />
+    <bpmn:sequenceFlow id="F_31" sourceRef="G_split" targetRef="T_confirm" />
+    <bpmn:sequenceFlow id="F_32" sourceRef="G_split" targetRef="T_get_task" />
+    <bpmn:sequenceFlow id="F_33" sourceRef="G_split" targetRef="T_accounting" />
+    <bpmn:sequenceFlow id="F_34" sourceRef="T_confirm" targetRef="G_join" />
+    <bpmn:sequenceFlow id="F_35" sourceRef="T_get_task" targetRef="G_join" />
+    <bpmn:sequenceFlow id="F_36" sourceRef="T_accounting" targetRef="G_join" />
+    <bpmn:sequenceFlow id="F_37" sourceRef="G_join" targetRef="End_planned" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_freight">
+    <bpmndi:BPMNPlane id="Plane_freight" bpmnElement="Collaboration_freight">
+      <bpmndi:BPMNShape id="Participant_client_di" bpmnElement="Participant_client" isHorizontal="true">
+        <dc:Bounds x="150" y="40" width="3020" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_atp_di" bpmnElement="Participant_atp" isHorizontal="true">
+        <dc:Bounds x="150" y="140" width="3020" height="880" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_dispatcher_di" bpmnElement="Lane_dispatcher" isHorizontal="true">
+        <dc:Bounds x="180" y="140" width="2990" height="400" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_mechanic_di" bpmnElement="Lane_mechanic" isHorizontal="true">
+        <dc:Bounds x="180" y="540" width="2990" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_head_di" bpmnElement="Lane_head" isHorizontal="true">
+        <dc:Bounds x="180" y="660" width="2990" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_driver_di" bpmnElement="Lane_driver" isHorizontal="true">
+        <dc:Bounds x="180" y="780" width="2990" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_accounting_di" bpmnElement="Lane_accounting" isHorizontal="true">
+        <dc:Bounds x="180" y="900" width="2990" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_epd_di" bpmnElement="Participant_epd" isHorizontal="true">
+        <dc:Bounds x="150" y="1060" width="3020" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_di" bpmnElement="Start">
+        <dc:Bounds x="222" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="185" y="393" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_register_di" bpmnElement="T_register" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="290" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_check_merge_di" bpmnElement="G_check_merge" isMarkerVisible="true">
+        <dc:Bounds x="445" y="345" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_check_di" bpmnElement="T_check" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="500" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_complete_di" bpmnElement="G_complete" isMarkerVisible="true">
+        <dc:Bounds x="655" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="625" y="400" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_ask_di" bpmnElement="T_ask">
+        <dc:Bounds x="620" y="190" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_info_di" bpmnElement="E_info">
+        <dc:Bounds x="542" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="505" y="253" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_route_di" bpmnElement="T_route">
+        <dc:Bounds x="740" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_time_di" bpmnElement="T_time" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="890" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_state_di" bpmnElement="T_state">
+        <dc:Bounds x="1010" y="560" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_vehicle_di" bpmnElement="T_vehicle" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="1130" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_vehicle_di" bpmnElement="G_vehicle" isMarkerVisible="true">
+        <dc:Bounds x="1285" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1255" y="400" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_driver_di" bpmnElement="T_driver" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="1370" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_driver_di" bpmnElement="G_driver" isMarkerVisible="true">
+        <dc:Bounds x="1525" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1495" y="400" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_refuse_merge_di" bpmnElement="G_refuse_merge" isMarkerVisible="true">
+        <dc:Bounds x="1525" y="205" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_refuse_di" bpmnElement="T_refuse">
+        <dc:Bounds x="1610" y="190" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_refused_di" bpmnElement="End_refused">
+        <dc:Bounds x="1772" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1735" y="253" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_cost_di" bpmnElement="T_cost" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="1610" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_approval_di" bpmnElement="G_approval" isMarkerVisible="true">
+        <dc:Bounds x="1765" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1735" y="299" width="110" height="42" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_approve_di" bpmnElement="T_approve">
+        <dc:Bounds x="1850" y="680" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_approval_merge_di" bpmnElement="G_approval_merge" isMarkerVisible="true">
+        <dc:Bounds x="2005" y="345" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_offer_di" bpmnElement="T_offer">
+        <dc:Bounds x="2090" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E_answer_di" bpmnElement="E_answer">
+        <dc:Bounds x="2252" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2215" y="393" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_accepted_di" bpmnElement="G_accepted" isMarkerVisible="true">
+        <dc:Bounds x="2345" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2315" y="313" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_declined_di" bpmnElement="End_declined">
+        <dc:Bounds x="2352" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2374" y="466" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_task_di" bpmnElement="T_task" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="2430" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_epd_di" bpmnElement="T_epd">
+        <dc:Bounds x="2590" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_split_di" bpmnElement="G_split">
+        <dc:Bounds x="2745" y="345" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_confirm_di" bpmnElement="T_confirm">
+        <dc:Bounds x="2830" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_get_task_di" bpmnElement="T_get_task">
+        <dc:Bounds x="2830" y="800" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_accounting_di" bpmnElement="T_accounting">
+        <dc:Bounds x="2830" y="920" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_join_di" bpmnElement="G_join">
+        <dc:Bounds x="2985" y="345" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_planned_di" bpmnElement="End_planned">
+        <dc:Bounds x="3092" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="3055" y="393" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DO_request_di" bpmnElement="DO_request">
+        <dc:Bounds x="487" y="435" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="460" y="488" width="90" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DO_vehicles_di" bpmnElement="DO_vehicles">
+        <dc:Bounds x="1052" y="435" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="958" y="437" width="90" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DO_drivers_di" bpmnElement="DO_drivers">
+        <dc:Bounds x="1412" y="435" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1385" y="488" width="90" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DO_tariffs_di" bpmnElement="DO_tariffs">
+        <dc:Bounds x="1652" y="435" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1625" y="488" width="90" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DO_trip_di" bpmnElement="DO_trip">
+        <dc:Bounds x="2552" y="435" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2525" y="488" width="90" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Annotation_legend_di" bpmnElement="Annotation_legend" bioc:stroke="#1b5e20" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#1b5e20">
+        <dc:Bounds x="150" y="1140" width="330" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_1_di" bpmnElement="F_1">
+        <di:waypoint x="258" y="370" />
+        <di:waypoint x="290" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_2_di" bpmnElement="F_2">
+        <di:waypoint x="410" y="370" />
+        <di:waypoint x="445" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_3_di" bpmnElement="F_3">
+        <di:waypoint x="495" y="370" />
+        <di:waypoint x="500" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_4_di" bpmnElement="F_4">
+        <di:waypoint x="620" y="370" />
+        <di:waypoint x="655" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_5_di" bpmnElement="F_5">
+        <di:waypoint x="680" y="345" />
+        <di:waypoint x="680" y="270" />
+        <bpmndi:BPMNLabel><dc:Bounds x="688" y="285" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_6_di" bpmnElement="F_6">
+        <di:waypoint x="620" y="230" />
+        <di:waypoint x="578" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_7_di" bpmnElement="F_7">
+        <di:waypoint x="542" y="230" />
+        <di:waypoint x="470" y="230" />
+        <di:waypoint x="470" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_8_di" bpmnElement="F_8">
+        <di:waypoint x="705" y="370" />
+        <di:waypoint x="740" y="370" />
+        <bpmndi:BPMNLabel><dc:Bounds x="708" y="350" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_9_di" bpmnElement="F_9">
+        <di:waypoint x="860" y="370" />
+        <di:waypoint x="890" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_10_di" bpmnElement="F_10">
+        <di:waypoint x="950" y="410" />
+        <di:waypoint x="950" y="600" />
+        <di:waypoint x="1010" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_11_di" bpmnElement="F_11">
+        <di:waypoint x="1130" y="600" />
+        <di:waypoint x="1190" y="600" />
+        <di:waypoint x="1190" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_12_di" bpmnElement="F_12">
+        <di:waypoint x="1250" y="370" />
+        <di:waypoint x="1285" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_13_di" bpmnElement="F_13">
+        <di:waypoint x="1335" y="370" />
+        <di:waypoint x="1370" y="370" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1338" y="350" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_14_di" bpmnElement="F_14">
+        <di:waypoint x="1310" y="345" />
+        <di:waypoint x="1310" y="230" />
+        <di:waypoint x="1525" y="230" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1318" y="285" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_15_di" bpmnElement="F_15">
+        <di:waypoint x="1490" y="370" />
+        <di:waypoint x="1525" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_16_di" bpmnElement="F_16">
+        <di:waypoint x="1550" y="345" />
+        <di:waypoint x="1550" y="255" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1558" y="285" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_17_di" bpmnElement="F_17">
+        <di:waypoint x="1575" y="230" />
+        <di:waypoint x="1610" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_18_di" bpmnElement="F_18">
+        <di:waypoint x="1730" y="230" />
+        <di:waypoint x="1772" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_19_di" bpmnElement="F_19">
+        <di:waypoint x="1575" y="370" />
+        <di:waypoint x="1610" y="370" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1578" y="350" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_20_di" bpmnElement="F_20">
+        <di:waypoint x="1730" y="370" />
+        <di:waypoint x="1765" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_21_di" bpmnElement="F_21">
+        <di:waypoint x="1790" y="395" />
+        <di:waypoint x="1790" y="720" />
+        <di:waypoint x="1850" y="720" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1798" y="400" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_22_di" bpmnElement="F_22">
+        <di:waypoint x="1815" y="370" />
+        <di:waypoint x="2005" y="370" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1822" y="350" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_23_di" bpmnElement="F_23">
+        <di:waypoint x="1970" y="720" />
+        <di:waypoint x="2030" y="720" />
+        <di:waypoint x="2030" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_24_di" bpmnElement="F_24">
+        <di:waypoint x="2055" y="370" />
+        <di:waypoint x="2090" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_25_di" bpmnElement="F_25">
+        <di:waypoint x="2210" y="370" />
+        <di:waypoint x="2252" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_26_di" bpmnElement="F_26">
+        <di:waypoint x="2288" y="370" />
+        <di:waypoint x="2345" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_27_di" bpmnElement="F_27">
+        <di:waypoint x="2370" y="395" />
+        <di:waypoint x="2370" y="462" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2378" y="405" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_28_di" bpmnElement="F_28">
+        <di:waypoint x="2395" y="370" />
+        <di:waypoint x="2430" y="370" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2398" y="350" width="22" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_29_di" bpmnElement="F_29">
+        <di:waypoint x="2550" y="370" />
+        <di:waypoint x="2590" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_30_di" bpmnElement="F_30">
+        <di:waypoint x="2710" y="370" />
+        <di:waypoint x="2745" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_31_di" bpmnElement="F_31">
+        <di:waypoint x="2795" y="370" />
+        <di:waypoint x="2830" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_32_di" bpmnElement="F_32">
+        <di:waypoint x="2770" y="395" />
+        <di:waypoint x="2770" y="840" />
+        <di:waypoint x="2830" y="840" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_33_di" bpmnElement="F_33">
+        <di:waypoint x="2770" y="395" />
+        <di:waypoint x="2770" y="960" />
+        <di:waypoint x="2830" y="960" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_34_di" bpmnElement="F_34">
+        <di:waypoint x="2950" y="370" />
+        <di:waypoint x="2985" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_35_di" bpmnElement="F_35">
+        <di:waypoint x="2950" y="840" />
+        <di:waypoint x="3010" y="840" />
+        <di:waypoint x="3010" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_36_di" bpmnElement="F_36">
+        <di:waypoint x="2950" y="960" />
+        <di:waypoint x="3010" y="960" />
+        <di:waypoint x="3010" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_37_di" bpmnElement="F_37">
+        <di:waypoint x="3035" y="370" />
+        <di:waypoint x="3092" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_1_di" bpmnElement="DA_1">
+        <di:waypoint x="380" y="410" />
+        <di:waypoint x="487" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_2_di" bpmnElement="DA_2">
+        <di:waypoint x="523" y="440" />
+        <di:waypoint x="545" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_3_di" bpmnElement="DA_3">
+        <di:waypoint x="1070" y="560" />
+        <di:waypoint x="1070" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_4_di" bpmnElement="DA_4">
+        <di:waypoint x="1088" y="455" />
+        <di:waypoint x="1155" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_5_di" bpmnElement="DA_5">
+        <di:waypoint x="1430" y="435" />
+        <di:waypoint x="1430" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_6_di" bpmnElement="DA_6">
+        <di:waypoint x="1670" y="435" />
+        <di:waypoint x="1670" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_7_di" bpmnElement="DA_7">
+        <di:waypoint x="2510" y="410" />
+        <di:waypoint x="2552" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DA_8_di" bpmnElement="DA_8">
+        <di:waypoint x="2588" y="445" />
+        <di:waypoint x="2620" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_1_di" bpmnElement="M_1">
+        <di:waypoint x="240" y="100" />
+        <di:waypoint x="240" y="352" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_2_di" bpmnElement="M_2">
+        <di:waypoint x="680" y="190" />
+        <di:waypoint x="680" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_3_di" bpmnElement="M_3">
+        <di:waypoint x="560" y="100" />
+        <di:waypoint x="560" y="212" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_4_di" bpmnElement="M_4">
+        <di:waypoint x="1670" y="190" />
+        <di:waypoint x="1670" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_5_di" bpmnElement="M_5">
+        <di:waypoint x="2150" y="330" />
+        <di:waypoint x="2150" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_6_di" bpmnElement="M_6">
+        <di:waypoint x="2270" y="100" />
+        <di:waypoint x="2270" y="352" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_7_di" bpmnElement="M_7">
+        <di:waypoint x="2890" y="330" />
+        <di:waypoint x="2890" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_8_di" bpmnElement="M_8">
+        <di:waypoint x="2670" y="410" />
+        <di:waypoint x="2670" y="1060" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
