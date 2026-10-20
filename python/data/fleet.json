@@ -1,0 +1,414 @@
+{
+  "clients": [
+    {
+      "client_id": 1,
+      "name": "ООО «СеверТорг»",
+      "inn": "7701234567",
+      "contact_person": "Орлова Мария Андреевна",
+      "phone": "+7 495 111-22-33",
+      "email": "logist@severtorg.example"
+    },
+    {
+      "client_id": 2,
+      "name": "АО «ВолгаАгро»",
+      "inn": "6312345678",
+      "contact_person": "Белов Игорь Николаевич",
+      "phone": "+7 846 222-33-44",
+      "email": "dispatch@volgaagro.example"
+    },
+    {
+      "client_id": 3,
+      "name": "ООО «ХимСнаб»",
+      "inn": "5249876543",
+      "contact_person": "Яковлев Сергей Павлович",
+      "phone": "+7 831 333-44-55",
+      "email": "supply@himsnab.example"
+    }
+  ],
+  "body_types": [
+    {
+      "body_type_id": 1,
+      "name": "Тентованный"
+    },
+    {
+      "body_type_id": 2,
+      "name": "Рефрижератор"
+    },
+    {
+      "body_type_id": 3,
+      "name": "Бортовой"
+    }
+  ],
+  "permits": [
+    {
+      "permit_id": 1,
+      "code": "C",
+      "name": "Категория C"
+    },
+    {
+      "permit_id": 2,
+      "code": "CE",
+      "name": "Категория CE"
+    },
+    {
+      "permit_id": 3,
+      "code": "ДОПОГ",
+      "name": "Свидетельство ДОПОГ о допуске к перевозке опасных грузов"
+    }
+  ],
+  "vehicles": [
+    {
+      "vehicle_id": 1,
+      "body_type_id": 1,
+      "required_permit_id": 2,
+      "plate": "А101АА 777",
+      "model": "КАМАЗ 54901 с полуприцепом",
+      "capacity_t": 20,
+      "volume_m3": 82,
+      "tech_state": "исправен"
+    },
+    {
+      "vehicle_id": 2,
+      "body_type_id": 1,
+      "required_permit_id": 2,
+      "plate": "В202ВВ 777",
+      "model": "КАМАЗ 54901 с полуприцепом",
+      "capacity_t": 22,
+      "volume_m3": 86,
+      "tech_state": "исправен"
+    },
+    {
+      "vehicle_id": 3,
+      "body_type_id": 1,
+      "required_permit_id": 1,
+      "plate": "Е303ЕЕ 777",
+      "model": "КАМАЗ 65207",
+      "capacity_t": 10,
+      "volume_m3": 36,
+      "tech_state": "исправен"
+    },
+    {
+      "vehicle_id": 4,
+      "body_type_id": 2,
+      "required_permit_id": 2,
+      "plate": "К404КК 777",
+      "model": "МАЗ 5440 с полуприцепом-рефрижератором",
+      "capacity_t": 18,
+      "volume_m3": 76,
+      "tech_state": "исправен"
+    },
+    {
+      "vehicle_id": 5,
+      "body_type_id": 2,
+      "required_permit_id": 1,
+      "plate": "М505ММ 777",
+      "model": "ГАЗон NEXT рефрижератор",
+      "capacity_t": 8,
+      "volume_m3": 30,
+      "tech_state": "неисправен"
+    },
+    {
+      "vehicle_id": 6,
+      "body_type_id": 3,
+      "required_permit_id": 1,
+      "plate": "Н606НН 777",
+      "model": "КАМАЗ 65117 бортовой",
+      "capacity_t": 10,
+      "volume_m3": 40,
+      "tech_state": "исправен"
+    }
+  ],
+  "drivers": [
+    {
+      "driver_id": 1,
+      "last_name": "Иванов",
+      "first_name": "Петр",
+      "middle_name": "Сергеевич",
+      "phone": "+7 900 100-00-01",
+      "license_number": "77 01 100001"
+    },
+    {
+      "driver_id": 2,
+      "last_name": "Смирнов",
+      "first_name": "Алексей",
+      "middle_name": "Игоревич",
+      "phone": "+7 900 100-00-02",
+      "license_number": "77 01 100002"
+    },
+    {
+      "driver_id": 3,
+      "last_name": "Кузнецов",
+      "first_name": "Дмитрий",
+      "middle_name": "Олегович",
+      "phone": "+7 900 100-00-03",
+      "license_number": "77 01 100003"
+    },
+    {
+      "driver_id": 4,
+      "last_name": "Попов",
+      "first_name": "Андрей",
+      "middle_name": "Викторович",
+      "phone": "+7 900 100-00-04",
+      "license_number": "77 01 100004"
+    }
+  ],
+  "driver_permits": [
+    {
+      "driver_id": 1,
+      "permit_id": 1,
+      "valid_until": "2032-04-15"
+    },
+    {
+      "driver_id": 1,
+      "permit_id": 2,
+      "valid_until": "2032-04-15"
+    },
+    {
+      "driver_id": 1,
+      "permit_id": 3,
+      "valid_until": "2027-05-31"
+    },
+    {
+      "driver_id": 2,
+      "permit_id": 1,
+      "valid_until": "2031-09-01"
+    },
+    {
+      "driver_id": 2,
+      "permit_id": 2,
+      "valid_until": "2031-09-01"
+    },
+    {
+      "driver_id": 2,
+      "permit_id": 3,
+      "valid_until": "2026-09-30"
+    },
+    {
+      "driver_id": 3,
+      "permit_id": 1,
+      "valid_until": "2030-06-20"
+    },
+    {
+      "driver_id": 4,
+      "permit_id": 1,
+      "valid_until": "2033-02-10"
+    },
+    {
+      "driver_id": 4,
+      "permit_id": 2,
+      "valid_until": "2033-02-10"
+    }
+  ],
+  "tariffs": [
+    {
+      "tariff_id": 1,
+      "body_type_id": 1,
+      "dist_from_km": 0,
+      "dist_to_km": 300,
+      "rate_per_km": 95,
+      "min_cost": 9000,
+      "danger_surcharge_pct": 30
+    },
+    {
+      "tariff_id": 2,
+      "body_type_id": 1,
+      "dist_from_km": 300,
+      "dist_to_km": 700,
+      "rate_per_km": 80,
+      "min_cost": 24000,
+      "danger_surcharge_pct": 25
+    },
+    {
+      "tariff_id": 3,
+      "body_type_id": 1,
+      "dist_from_km": 700,
+      "dist_to_km": 1500,
+      "rate_per_km": 70,
+      "min_cost": 49000,
+      "danger_surcharge_pct": 20
+    },
+    {
+      "tariff_id": 4,
+      "body_type_id": 1,
+      "dist_from_km": 1500,
+      "dist_to_km": 3000,
+      "rate_per_km": 62,
+      "min_cost": 93000,
+      "danger_surcharge_pct": 15
+    },
+    {
+      "tariff_id": 5,
+      "body_type_id": 2,
+      "dist_from_km": 0,
+      "dist_to_km": 300,
+      "rate_per_km": 115,
+      "min_cost": 11000,
+      "danger_surcharge_pct": 35
+    },
+    {
+      "tariff_id": 6,
+      "body_type_id": 2,
+      "dist_from_km": 300,
+      "dist_to_km": 700,
+      "rate_per_km": 98,
+      "min_cost": 30000,
+      "danger_surcharge_pct": 30
+    },
+    {
+      "tariff_id": 7,
+      "body_type_id": 2,
+      "dist_from_km": 700,
+      "dist_to_km": 1500,
+      "rate_per_km": 86,
+      "min_cost": 60000,
+      "danger_surcharge_pct": 25
+    },
+    {
+      "tariff_id": 8,
+      "body_type_id": 2,
+      "dist_from_km": 1500,
+      "dist_to_km": 3000,
+      "rate_per_km": 76,
+      "min_cost": 115000,
+      "danger_surcharge_pct": 20
+    },
+    {
+      "tariff_id": 9,
+      "body_type_id": 3,
+      "dist_from_km": 0,
+      "dist_to_km": 300,
+      "rate_per_km": 90,
+      "min_cost": 8500,
+      "danger_surcharge_pct": 30
+    },
+    {
+      "tariff_id": 10,
+      "body_type_id": 3,
+      "dist_from_km": 300,
+      "dist_to_km": 700,
+      "rate_per_km": 76,
+      "min_cost": 23000,
+      "danger_surcharge_pct": 25
+    },
+    {
+      "tariff_id": 11,
+      "body_type_id": 3,
+      "dist_from_km": 700,
+      "dist_to_km": 1500,
+      "rate_per_km": 66,
+      "min_cost": 46000,
+      "danger_surcharge_pct": 20
+    },
+    {
+      "tariff_id": 12,
+      "body_type_id": 3,
+      "dist_from_km": 1500,
+      "dist_to_km": 3000,
+      "rate_per_km": 58,
+      "min_cost": 87000,
+      "danger_surcharge_pct": 15
+    }
+  ],
+  "requests": [
+    {
+      "request_id": 1,
+      "client_id": 1,
+      "body_type_id": 1,
+      "received_at": "2026-10-22T10:05",
+      "loading_address": "Москва, ул. Складская, 5",
+      "unloading_address": "Нижний Новгород, ул. Заводская, 12",
+      "loading_time": "2026-10-26T06:00",
+      "delivery_deadline": "2026-10-27T18:00",
+      "cargo_mass_t": 17,
+      "cargo_volume_m3": 80,
+      "places": 33,
+      "packaging": "паллеты",
+      "dangerous": false,
+      "temperature_mode": "",
+      "distance_km": 420,
+      "status": "рейс запланирован"
+    },
+    {
+      "request_id": 2,
+      "client_id": 2,
+      "body_type_id": 2,
+      "received_at": "2026-10-23T14:40",
+      "loading_address": "Самара, Московское ш., 41",
+      "unloading_address": "Санкт-Петербург, Пулковское ш., 60",
+      "loading_time": "2026-10-26T20:00",
+      "delivery_deadline": "2026-10-28T12:00",
+      "cargo_mass_t": 16,
+      "cargo_volume_m3": 70,
+      "places": 30,
+      "packaging": "паллеты",
+      "dangerous": false,
+      "temperature_mode": "от +2 до +6 °C",
+      "distance_km": 1450,
+      "status": "рейс запланирован"
+    },
+    {
+      "request_id": 3,
+      "client_id": 3,
+      "body_type_id": 3,
+      "received_at": "2026-10-23T16:20",
+      "loading_address": "Дзержинск, ул. Промышленная, 3",
+      "unloading_address": "Владимир, ул. Мещерская, 8",
+      "loading_time": "2026-10-26T05:00",
+      "delivery_deadline": "2026-10-26T20:00",
+      "cargo_mass_t": 9,
+      "cargo_volume_m3": 30,
+      "places": 12,
+      "packaging": "ящики",
+      "dangerous": false,
+      "temperature_mode": "",
+      "distance_km": 210,
+      "status": "рейс запланирован"
+    }
+  ],
+  "trips": [
+    {
+      "trip_id": 1,
+      "request_id": 1,
+      "vehicle_id": 2,
+      "departure_time": "2026-10-26T06:00",
+      "arrival_time": "2026-10-27T12:00",
+      "cost": 33600.0,
+      "status": "запланирован"
+    },
+    {
+      "trip_id": 2,
+      "request_id": 2,
+      "vehicle_id": 4,
+      "departure_time": "2026-10-26T20:00",
+      "arrival_time": "2026-10-28T08:00",
+      "cost": 124700.0,
+      "status": "запланирован"
+    },
+    {
+      "trip_id": 3,
+      "request_id": 3,
+      "vehicle_id": 6,
+      "departure_time": "2026-10-26T05:00",
+      "arrival_time": "2026-10-26T18:00",
+      "cost": 18900.0,
+      "status": "запланирован"
+    }
+  ],
+  "trip_drivers": [
+    {
+      "trip_id": 1,
+      "driver_id": 4,
+      "role": "основной"
+    },
+    {
+      "trip_id": 2,
+      "driver_id": 2,
+      "role": "основной"
+    },
+    {
+      "trip_id": 3,
+      "driver_id": 3,
+      "role": "основной"
+    }
+  ]
+}
