@@ -19,3 +19,4 @@ target/
 .mvn/wrapper/maven-wrapper.properties
 *.iml
 out/
+build/

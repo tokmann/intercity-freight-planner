@@ -22,3 +22,7 @@
 - `python/` - процедурная реализация (Python), запуск описан в `python/README.md`
 - `java/` - объектно-ориентированная реализация (Java, Spring Boot)
 - `compose.yaml` - PostgreSQL 17 в Docker
+
+## Консольная ООП-версия КТ3
+
+Исходники и инструкция: [java/planner/README.md](java/planner/README.md). Сборка из корня репозитория: `mvn -f java/planner/pom.xml clean package`. Запуск из папки `java/planner`: `java -jar target/planner.jar`. Исходный каркас Spring Boot в `java/` сохранен для дальнейших этапов.
