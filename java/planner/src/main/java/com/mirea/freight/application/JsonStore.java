@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public final class JsonStore {
@@ -35,8 +36,16 @@ public final class JsonStore {
         for (JsonNode n : root.path("drivers")) drivers.add(new Driver(n.path("driver_id").asInt(), text(n,"last_name"),
                 text(n,"first_name"), text(n,"middle_name"), text(n,"phone"), text(n,"license_number")));
         List<DriverPermit> driverPermits = new ArrayList<>();
-        for (JsonNode n : root.path("driver_permits")) driverPermits.add(new DriverPermit(n.path("driver_id").asInt(),
-                n.path("permit_id").asInt(), LocalDate.parse(text(n,"valid_until"))));
+        for (JsonNode n : root.path("driver_permits")) {
+            String value = text(n,"valid_until");
+            if (value == null || value.isBlank()) throw new IllegalArgumentException("не указано: valid_until");
+            try {
+                driverPermits.add(new DriverPermit(n.path("driver_id").asInt(),
+                        n.path("permit_id").asInt(), LocalDate.parse(value)));
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("неверная дата в поле valid_until: " + value, e);
+            }
+        }
         List<Tariff> tariffs = new ArrayList<>();
         for (JsonNode n : root.path("tariffs")) tariffs.add(new Tariff(n.path("tariff_id").asInt(), n.path("body_type_id").asInt(),
                 n.path("dist_from_km").asDouble(), n.path("dist_to_km").asDouble(), n.path("rate_per_km").asDouble(),
@@ -74,6 +83,12 @@ public final class JsonStore {
     private Integer integer(JsonNode n, String key) { return n.path(key).isNumber() ? n.path(key).intValue() : null; }
     private Double number(JsonNode n, String key) { return n.path(key).isNumber() ? n.path(key).doubleValue() : null; }
     private LocalDateTime dt(JsonNode n, String key) {
-        String value = text(n,key); return value == null || value.isEmpty() ? null : LocalDateTime.parse(value);
+        String value = text(n,key);
+        if (value == null || value.isEmpty()) return null;
+        try {
+            return LocalDateTime.parse(value);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("неверная дата в поле " + key + ": " + value, e);
+        }
     }
 }
