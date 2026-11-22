@@ -46,7 +46,8 @@ public final class ConsoleApp {
         Request q = result.request();
         Client c = q.clientId() == null ? null : fleet.clients().get(q.clientId());
         List<String> lines = new ArrayList<>();
-        lines.add("Заявка № " + q.requestId() + " от " + dt(q.receivedAt()) + ", " + (c == null ? "клиент не указан" : c.name()));
+        String received = q.receivedAt() == null ? "дата приема не указана" : "от " + dt(q.receivedAt());
+        lines.add("Заявка № " + q.requestId() + " " + received + ", " + (c == null ? "клиент не указан" : c.name()));
         if (q.loadingAddress() != null && !q.loadingAddress().isEmpty() && q.unloadingAddress() != null && !q.unloadingAddress().isEmpty()) {
             String tail = q.distanceKm() == null || q.distanceKm() == 0 ? "" : " (" + number(q.distanceKm()) + " км)";
             lines.add("  Маршрут: " + q.loadingAddress() + " -> " + q.unloadingAddress() + tail);
@@ -76,7 +77,7 @@ public final class ConsoleApp {
         return lines;
     }
 
-    private String dt(LocalDateTime value) { return value.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")); }
+    private String dt(LocalDateTime value) { return value == null ? "не указана" : value.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")); }
     private String number(double value) {
         String[] parts = String.format(Locale.ROOT, "%.6g", value).split("e", 2);
         String mantissa = parts[0];

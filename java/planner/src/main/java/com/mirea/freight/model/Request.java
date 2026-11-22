@@ -67,9 +67,9 @@ public class Request {
 
     public List<String> checkCompleteness(java.util.Map<Integer, Client> clients, java.util.Map<Integer, BodyType> bodyTypes) {
         List<String> problems = new ArrayList<>();
-        Object[] values = { clientId, bodyTypeId, loadingAddress, unloadingAddress, loadingTime,
+        Object[] values = { receivedAt, clientId, bodyTypeId, loadingAddress, unloadingAddress, loadingTime,
                 deliveryDeadline, cargoMassT, cargoVolumeM3, places, packaging, distanceKm };
-        String[] names = { "клиент", "тип кузова", "адрес погрузки", "адрес выгрузки", "время погрузки",
+        String[] names = { "дата приема", "клиент", "тип кузова", "адрес погрузки", "адрес выгрузки", "время погрузки",
                 "срок доставки", "масса груза", "объем груза", "число мест", "вид упаковки", "расстояние" };
         for (int i = 0; i < values.length; i++) {
             if (values[i] == null || "".equals(values[i])) problems.add("не указано: " + names[i]);
